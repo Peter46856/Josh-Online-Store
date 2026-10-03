@@ -1,0 +1,45 @@
+import { Router } from 'express';
+import { requireAuth, requireAdmin } from '../middleware/auth';
+import {
+  getAllProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from '../controllers/productController';
+import { getProductMovements } from '../controllers/productController';
+import { restockProduct } from '../controllers/productController';
+import multer from 'multer';
+import { uploadProductImage } from '../controllers/productController';
+import { getProductImages, deleteProductImage } from '../controllers/productController';
+
+
+
+const router = Router();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Only image files are allowed'));
+    }
+    cb(null, true);
+  },
+});
+
+router.get('/', getAllProducts);
+router.get('/:id', getProductById);
+
+router.post('/', requireAuth, requireAdmin, createProduct);
+router.put('/:id', requireAuth, requireAdmin, updateProduct);
+router.delete('/:id', requireAuth, requireAdmin, deleteProduct);
+router.get('/:id/movements', requireAuth, requireAdmin, getProductMovements);
+router.post('/:id/restock', requireAuth, requireAdmin, restockProduct);
+router.post('/:id/image', requireAuth, requireAdmin, upload.single('image'), uploadProductImage);
+router.get('/:id/images', getProductImages);
+router.delete('/:id/images/:imageId', requireAuth, requireAdmin, deleteProductImage);
+
+
+
+export default router;
+

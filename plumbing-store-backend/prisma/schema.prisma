@@ -1,0 +1,172 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal   @db.Decimal(10, 2)
+  quantity    Int       @default(0)
+  available   Boolean   @default(true)
+  imageUrl    String?
+  category    Category  @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  cartItems   CartItem[]
+  orderItems OrderItem[]
+  enquiries Enquiry[]
+  lowStockThreshold Int @default(10)
+  movements StockMovement[]
+  images ProductImage[]
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(CUSTOMER)
+  cart      Cart?
+  createdAt DateTime  @default(now())
+  orders Order[]
+  enquiries Enquiry[]
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  user      User       @relation(fields: [userId], references: [id])
+  userId    Int        @unique
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  cartId    Int
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  quantity  Int
+  createdAt DateTime @default(now())
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  user          User        @relation(fields: [userId], references: [id])
+  userId        Int
+  items         OrderItem[]
+  totalPrice    Decimal     @db.Decimal(10, 2)
+  status        OrderStatus @default(PENDING)
+  paymentMethod String
+  deliveryAddress String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  paymentPhone     String?
+  paymentCardLast4 String?
+  stockMovements StockMovement[]
+  mpesaCheckoutRequestId String?
+  mpesaMerchantRequestId String?
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2)
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+
+enum EnquiryStatus {
+  PENDING
+  REPLIED
+  CLOSED
+}
+
+model Enquiry {
+  id        Int              @id @default(autoincrement())
+  user      User             @relation(fields: [userId], references: [id])
+  userId    Int
+  product   Product?         @relation(fields: [productId], references: [id])
+  productId Int?
+  quantity  Int?
+  phone     String?
+  status    EnquiryStatus    @default(PENDING)
+  messages  EnquiryMessage[]
+  createdAt DateTime         @default(now())
+}
+
+model EnquiryMessage {
+  id         Int      @id @default(autoincrement())
+  enquiry    Enquiry  @relation(fields: [enquiryId], references: [id])
+  enquiryId  Int
+  senderRole Role
+  text       String
+  createdAt  DateTime @default(now())
+}
+
+model StockMovement {
+  id        Int              @id @default(autoincrement())
+  product   Product          @relation(fields: [productId], references: [id])
+  productId Int
+  change    Int
+  reason    MovementReason
+  order     Order?           @relation(fields: [orderId], references: [id])
+  orderId   Int?
+  note      String?
+  createdAt DateTime         @default(now())
+}
+
+enum MovementReason {
+  SALE
+  RESTOCK
+  ADJUSTMENT
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  url       String
+  path      String
+  createdAt DateTime @default(now())
+}
