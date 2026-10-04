@@ -14,18 +14,25 @@ dotenv.config();
 
 const app = express();
 
-// Allowed origins setup
+// Set allowed origins (strip any trailing slashes)
+const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '');
+
 const allowedOrigins = [
- 
-  process.env.FRONTEND_URL  // Production Render URL (e.g., https://josh-online-store-frontend.onrender.com)
+  'http://localhost:5173',
+  'http://localhost:3000',
+  frontendUrl,
 ].filter(Boolean) as string[];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, Postman, or server-to-server calls like M-Pesa callbacks)
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Standardize origin by removing trailing slash if present
+    const cleanOrigin = origin?.replace(/\/$/, '');
+
+    // Allow requests with no origin (Postman, server-to-server callbacks) or matched origins
+    if (!origin || allowedOrigins.includes(cleanOrigin!)) {
       callback(null, true);
     } else {
+      console.warn(`[CORS Blocked] Request Origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -46,7 +53,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/enquiries', enquiryRoutes);
 app.use('/api/mpesa', mpesaRoutes);
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
