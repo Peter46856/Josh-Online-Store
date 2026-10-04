@@ -10,12 +10,28 @@ import orderRoutes from './routes/orderRoutes';
 import enquiryRoutes from './routes/enquiryRoutes';
 import mpesaRoutes from './routes/mpesaRoutes';
 
-
-
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// Allowed origins setup
+const allowedOrigins = [
+ 
+  process.env.FRONTEND_URL  // Production Render URL (e.g., https://josh-online-store-frontend.onrender.com)
+].filter(Boolean) as string[];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, Postman, or server-to-server calls like M-Pesa callbacks)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
 
 app.get('/api/health', (req, res) => {
@@ -30,8 +46,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/enquiries', enquiryRoutes);
 app.use('/api/mpesa', mpesaRoutes);
 
-
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
