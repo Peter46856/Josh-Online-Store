@@ -36,7 +36,7 @@ function AdminProductsPage() {
   const [restockingId, setRestockingId] = useState<number | null>(null);
   const [restockAmount, setRestockAmount] = useState('');
   const [restockNote, setRestockNote] = useState('');
-  const [uploadingId, setUploadingId] = useState<number | null>(null);
+  //const [ uploadingId, setUploadingId] = useState<number | null>(null);
 
   const fetchAll = () => {
     Promise.all([
@@ -147,6 +147,7 @@ function AdminProductsPage() {
     fetchAll();
   };
 
+  /*
   const handleImageUpload = async (productId: number, file: File) => {
     setUploadingId(productId);
     const formData = new FormData();
@@ -161,6 +162,8 @@ function AdminProductsPage() {
     setUploadingId(null);
     fetchAll();
   };
+
+  */
 
   if (user && user.role !== 'ADMIN') {
     return <p>Access denied. Admins only.</p>;
