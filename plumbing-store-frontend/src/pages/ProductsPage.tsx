@@ -54,7 +54,10 @@ function ProductsPage() {
 
   return (
     <div className="app">
-      <h1>Plumbing & Irrigation Store</h1>
+      <div className="hero-band">
+        <h1>Plumbing & Irrigation Store</h1>
+        <p>Pipes, fittings, pumps and irrigation kits — in stock, ready for pickup or delivery.</p>
+      </div>
 
       <div className="category-filters">
         <button

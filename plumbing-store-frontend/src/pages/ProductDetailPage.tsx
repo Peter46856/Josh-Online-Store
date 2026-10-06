@@ -149,7 +149,7 @@ function ProductDetailPage() {
                   value={quantity}
                   onChange={(e) => setQuantity(Number(e.target.value))}
                 />
-                <button onClick={handleAddToCart}>Add to Cart</button>
+                <button onClick={handleAddToCart} className="btn-primary">Add to Cart</button>
               </div>
 
               <div className="enquiry-section">
@@ -185,7 +185,7 @@ function ProductDetailPage() {
                       placeholder="Ask about pricing, availability, delivery..."
                     />
                     {enquiryStatus && <p className="enquiry-status">{enquiryStatus}</p>}
-                    <button onClick={handleSubmitEnquiry} disabled={enquirySubmitting}>
+                    <button onClick={handleSubmitEnquiry} disabled={enquirySubmitting} className="btn-primary">
                       {enquirySubmitting ? 'Sending...' : 'Send Enquiry'}
                     </button>
                   </div>

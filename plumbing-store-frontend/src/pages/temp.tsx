@@ -22,6 +22,38 @@ interface SaleDetail {
   accountSuffix: string | null;
 }
 
+function LineChart({ data }: { data: { date: string; revenue: number }[] }) {
+  if (data.length === 0) return <p>No paid orders in this period.</p>;
+
+  const width = 700;
+  const height = 180;
+  const padding = 20;
+  const maxRevenue = Math.max(...data.map((d) => d.revenue), 1);
+  const stepX = data.length > 1 ? (width - padding * 2) / (data.length - 1) : 0;
+
+  const points = data.map((d, i) => {
+    const x = padding + i * stepX;
+    const y =
+      height - padding - (d.revenue / maxRevenue) * (height - padding * 2);
+    return { x, y, ...d };
+  });
+
+  const pathD = points
+    .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`)
+    .join(' ');
+
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} className="line-chart">
+      <path d={pathD} fill="none" stroke="#1a1a1a" strokeWidth={2} />
+      {points.map((p) => (
+        <circle key={p.date} cx={p.x} cy={p.y} r={3.5} fill="#1a1a1a">
+          <title>{`${p.date}: KSh ${p.revenue.toLocaleString()}`}</title>
+        </circle>
+      ))}
+    </svg>
+  );
+}
+
 function AdminDashboardPage() {
   const { token, user } = useAuth();
   const navigate = useNavigate();
@@ -103,6 +135,13 @@ function AdminDashboardPage() {
           <p className="stat-value">
             KSh {stats.averageOrderValue.toFixed(0)}
           </p>
+        </div>
+      </div>
+
+      <div className="dashboard-section">
+        <h3>Revenue Over Time</h3>
+        <div className="chart-container">
+          <LineChart data={stats.revenueByDay} />
         </div>
       </div>
 
