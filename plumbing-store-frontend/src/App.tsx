@@ -18,7 +18,7 @@ import AdminOrdersPage from './pages/AdminOrdersPage';
 import ProductMovementsPage from './pages/ProductMovementsPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import ProductImagesPage from './pages/ProductImagesPage';
-
+import Footer from './components/Footer';
 
 
 function App() {
@@ -46,6 +46,7 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           <Route path="/admin/products/:id/images" element={<ProductImagesPage />} />
         </Routes>
+         <Footer />
       </BrowserRouter>
     </AuthProvider>
   );
